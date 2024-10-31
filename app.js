@@ -1,6 +1,5 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const bcrypt = require('bcryptjs');
 const session = require('express-session');
 const db = require('./config/db');
 const app = express();
@@ -38,18 +37,29 @@ app.get('/signup', (req, res) => {
     res.render('signup');
 });
 
+
 app.post('/signup', async (req, res) => {
-    const { username, password } = req.body;
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const { firstName, middleName, lastName, email, username, dob, password, confirmPassword } = req.body;
+
+    // Check if password and confirmPassword match
+    if (password !== confirmPassword) {
+        console.error("Passwords do not match.");
+        return res.redirect('/signup'); // Handle password mismatch
+    }
 
     try {
-        await db.query('INSERT INTO users (username, password) VALUES (?, ?)', [username, hashedPassword]);
+        await db.query(
+            'INSERT INTO users (first_name, middle_name, last_name, email, username, dob, password) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            [firstName, middleName || null, lastName, email, username, dob, password]
+        );
         res.redirect('/login');
     } catch (error) {
         console.error(error);
-        res.redirect('/signup');
+        res.redirect('/signup'); // Handle errors (e.g., duplicate email or username)
     }
 });
+
+
 
 // Login Route
 app.get('/login', (req, res) => {
@@ -63,8 +73,8 @@ app.post('/login', async (req, res) => {
         const [users] = await db.query('SELECT * FROM users WHERE username = ?', [username]);
         if (users.length > 0) {
             const user = users[0];
-            const match = await bcrypt.compare(password, user.password);
-            if (match) {
+            // Directly compare the plain text password
+            if (password === user.password) {
                 req.session.userId = user.id;  // Store user ID in session
                 return res.redirect('/');
             }
