@@ -73,9 +73,15 @@ app.post('/login', async (req, res) => {
         const [users] = await db.query('SELECT * FROM users WHERE username = ?', [username]);
         if (users.length > 0) {
             const user = users[0];
-            // Directly compare the plain text password
             if (password === user.password) {
                 req.session.userId = user.id;  // Store user ID in session
+
+                // Insert login history record
+                await db.query(
+                    'INSERT INTO login_history (user_id, username, first_name) VALUES (?, ?, ?)',
+                    [user.id, user.username, user.first_name]
+                );
+
                 return res.redirect('/');
             }
         }
@@ -85,6 +91,7 @@ app.post('/login', async (req, res) => {
         res.redirect('/login');
     }
 });
+
 
 // Logout Route
 app.get('/logout', (req, res) => {
