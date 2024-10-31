@@ -3,8 +3,9 @@ const bodyParser = require('body-parser');
 const bcrypt = require('bcryptjs');
 const session = require('express-session');
 const db = require('./config/db');
-
 const app = express();
+
+app.use(express.static('public'));
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(session({
@@ -24,7 +25,8 @@ function requireLogin(req, res, next) {
 // Home Route (Protected)
 app.get('/', requireLogin, async (req, res) => {
     try {
-        const [expenses] = await db.query('SELECT * FROM expenses');
+        // Fetch expenses for the logged-in user
+        const [expenses] = await db.query('SELECT * FROM expenses WHERE user_id = ?', [req.session.userId]);
         res.render('index', { expenses });
     } catch (error) {
         console.error(error);
@@ -63,7 +65,7 @@ app.post('/login', async (req, res) => {
             const user = users[0];
             const match = await bcrypt.compare(password, user.password);
             if (match) {
-                req.session.userId = user.id;
+                req.session.userId = user.id;  // Store user ID in session
                 return res.redirect('/');
             }
         }
@@ -92,7 +94,9 @@ app.get('/add-expense', requireLogin, (req, res) => {
 app.post('/add-expense', requireLogin, async (req, res) => {
     const { description, amount, date } = req.body;
     try {
-        await db.query('INSERT INTO expenses (description, amount, date) VALUES (?, ?, ?)', [description, amount, date]);
+        // Insert the expense with the user_id
+        await db.query('INSERT INTO expenses (user_id, description, amount, date) VALUES (?, ?, ?, ?)', 
+            [req.session.userId, description, amount, date]);
         res.redirect('/');
     } catch (error) {
         console.error(error);
