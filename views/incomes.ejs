@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Incomes</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-dark text-light">
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Your Incomes</h1>
+        <div class="d-flex justify-content-end mb-4">
+            <a href="/logout" class="btn btn-outline-light me-2">Logout</a>
+            <a href="/add-income" class="btn btn-primary me-2">Add New Income</a> <!-- Add link to add income -->
+            <a href="/" class="btn btn-outline-light">Home</a> <!-- Button to go to Home page -->
+        </div>
+        <table class="table table-striped table-dark">
+            <thead>
+                <tr>
+                    <th>Source</th>
+                    <th>Amount</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% incomes.forEach(income => { %>
+                    <tr>
+                        <td><%= income.source %></td>
+                        <td>Rs <%= parseFloat(income.amount).toFixed(2) %></td>
+                        <td><%= new Date(income.date).toLocaleDateString() %></td>
+                        <td>
+                            <form action="/delete-income/<%= income.id %>" method="POST" style="display:inline;">
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                <% }); %>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

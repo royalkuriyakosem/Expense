@@ -1,0 +1,105 @@
+/* General styling */
+body {
+    background-color: #222; /* Dark gray background for the whole page */
+    color: #ddd; /* Light text for better contrast */
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+/* Header styling */
+.header {
+    text-align: center;
+    padding: 20px;
+}
+
+/* Website name styling */
+.website-name {
+    color: #ac7eab; /* White text color */
+    font-size: 1.3em; /* Larger font size */
+    font-weight: bold;
+    text-transform: uppercase; /* All caps for a bold look */
+    letter-spacing: 1px;
+    margin: 0;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+/* Custom class for welcome heading */
+.welcome-heading {
+    margin-top: 150px; /* Increased margin for more space above the heading */
+}
+
+/* Form container */
+.form-container {
+    background-color: #333; /* Dark gray background for form box */
+    padding: 20px;
+    border-radius: 8px;
+    color: #ddd; /* Light text color */
+    font-family: Arial, sans-serif;
+}
+
+/* Text and headings */
+h1, label, a {
+    color: #fff; /* White text for headings, labels, and links */
+    font-family: Arial, sans-serif;
+}
+
+/* Button styling */
+.btn-primary {
+    background-color: #555; /* Dark gray button color */
+    border-color: #555;
+    color: #fff;
+    font-family: Arial, sans-serif;
+}
+
+.btn-primary:hover {
+    background-color: #777; /* Lighter gray on hover */
+    border-color: #777;
+}
+
+/* Link styling */
+a {
+    color: #aaa; /* Light gray for links */
+    font-family: Arial, sans-serif;
+}
+
+a:hover {
+    color: #ddd; /* Slightly lighter on hover */
+}
+
+/* Login box styling */
+.login-box {
+    background-color: #333;  /* Dark gray background for login box */
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    font-family: Arial, sans-serif;
+}
+
+/* Form labels */
+.form-label {
+    color: #ccc; /* Light gray for form labels */
+    font-family: Arial, sans-serif;
+}
+
+/* Form controls */
+.form-control {
+    background-color: #444;  /* Medium-dark gray for inputs */
+    border: none;
+    color: #fff; /* White text for inputs */
+    font-family: Arial, sans-serif;
+}
+
+/* Text color for light background elements */
+.text-light a {
+    color: #ccc; /* Light gray for links */
+    font-family: Arial, sans-serif;
+}
+
+.text-light a:hover {
+    color: #fff; /* White on hover */
+}
+
+/* Box sizing for all elements */
+*, *:before, *:after {
+    box-sizing: border-box;
+}

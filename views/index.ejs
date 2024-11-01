@@ -6,24 +6,68 @@
     <title>Expense Tracker - Home</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Custom styles for table borders */
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #fff; /* Solid white borders */
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #555; /* Dark gray background for header */
+        }
+    </style>
 </head>
-<body>
+<body class="bg-dark text-light">
     <div class="container mt-5">
         <h1 class="text-center mb-4">Expense Tracker</h1>
+
+        <!-- Action buttons -->
         <div class="d-flex justify-content-end mb-4">
-            <a href="/logout" class="btn btn-outline-danger me-2">Logout</a>
+            <a href="/logout" class="btn btn-outline-light me-2">Logout</a>
             <a href="/add-expense" class="btn btn-primary">Add New Expense</a>
         </div>
 
-        <ul class="list-group">
-            <% expenses.forEach(expense => { %>
-                <li class="list-group-item">
-                    <%= expense.description %> - 
-                    <strong>$<%= parseFloat(expense.amount).toFixed(2) %></strong> - 
-                    <small><%= expense.date %></small>
-                </li>
-            <% }); %>
-        </ul>
+        <!-- Expenses List -->
+        <div class="card bg-secondary text-light">
+            <div class="card-body">
+                <h5 class="card-title text-center mb-3">Your Expenses</h5>
+                <table class="table table-dark">
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th>Amount</th>
+                            <th>Date</th>
+                            <th>Action</th> <!-- New Action Column -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% expenses.forEach(expense => { %>
+                            <tr>
+                                <td><%= expense.description %></td>
+                                <td class="fw-bold">$<%= parseFloat(expense.amount).toFixed(2) %></td>
+                                <td>
+                                    <% 
+                                        const date = new Date(expense.date); 
+                                        const shortDate = `${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}/${date.getFullYear()}`;
+                                    %>
+                                    <%= shortDate %>
+                                </td>
+                                <td>
+                                    <form action="/delete-expense/<%= expense.id %>" method="POST" style="display: inline;">
+                                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
     <!-- Bootstrap JS and dependencies (optional) -->

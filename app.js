@@ -22,21 +22,14 @@ function requireLogin(req, res, next) {
 }
 
 // Home Route (Protected)
-app.get('/', requireLogin, async (req, res) => {
-    try {
-        // Fetch expenses for the logged-in user
-        const [expenses] = await db.query('SELECT * FROM expenses WHERE user_id = ?', [req.session.userId]);
-        res.render('index', { expenses });
-    } catch (error) {
-        console.error(error);
-    }
+app.get('/', requireLogin, (req, res) => {
+    res.render('home'); // Render the home view with links to expenses and incomes
 });
 
 // Signup Route
 app.get('/signup', (req, res) => {
     res.render('signup');
 });
-
 
 app.post('/signup', async (req, res) => {
     const { firstName, middleName, lastName, email, username, dob, password, confirmPassword } = req.body;
@@ -59,11 +52,9 @@ app.post('/signup', async (req, res) => {
     }
 });
 
-
-
 // Login Route
 app.get('/login', (req, res) => {
-    res.render('login');
+    res.render('login', { error: null }); // No error initially
 });
 
 app.post('/login', async (req, res) => {
@@ -75,20 +66,14 @@ app.post('/login', async (req, res) => {
             const user = users[0];
             if (password === user.password) {
                 req.session.userId = user.id;  // Store user ID in session
-
-                // Insert login history record
-                await db.query(
-                    'INSERT INTO login_history (user_id, username, first_name) VALUES (?, ?, ?)',
-                    [user.id, user.username, user.first_name]
-                );
-
-                return res.redirect('/');
+                return res.redirect('/'); // Redirect to home after login
             }
         }
-        res.redirect('/login');
+        // If credentials are incorrect, set error message
+        res.render('login', { error: 'Invalid username or password. Please try again.' });
     } catch (error) {
         console.error(error);
-        res.redirect('/login');
+        res.render('login', { error: 'An error occurred. Please try again.' });
     }
 });
 
@@ -103,21 +88,84 @@ app.get('/logout', (req, res) => {
     });
 });
 
+// Incomes Route (Protected)
+app.get('/incomes', requireLogin, async (req, res) => {
+    try {
+        const [incomes] = await db.query('SELECT * FROM incomes WHERE user_id = ?', [req.session.userId]);
+        res.render('incomes', { incomes }); // Render the incomes view
+    } catch (error) {
+        console.error(error);
+    }
+});
+
+// Expenses Route (Protected)
+app.get('/expenses', requireLogin, async (req, res) => {
+    try {
+        const [expenses] = await db.query('SELECT * FROM expenses WHERE user_id = ?', [req.session.userId]);
+        res.render('expenses', { expenses }); // Render the expenses view
+    } catch (error) {
+        console.error(error);
+    }
+});
+
 // Add Expense Route (Protected)
 app.get('/add-expense', requireLogin, (req, res) => {
     res.render('add-expense');
 });
 
 app.post('/add-expense', requireLogin, async (req, res) => {
-    const { description, amount, date } = req.body;
+    const { category, amount, date } = req.body;
     try {
         // Insert the expense with the user_id
-        await db.query('INSERT INTO expenses (user_id, description, amount, date) VALUES (?, ?, ?, ?)', 
-            [req.session.userId, description, amount, date]);
-        res.redirect('/');
+        await db.query('INSERT INTO expenses (user_id, category, amount, date) VALUES (?, ?, ?, ?)', 
+            [req.session.userId, category, amount, date]);
+        res.redirect('/expenses'); // Redirect to expenses view after adding
     } catch (error) {
         console.error(error);
     }
 });
 
+// Add Income Route (Protected)
+app.get('/add-income', requireLogin, (req, res) => {
+    res.render('add-income');
+});
+
+app.post('/add-income', requireLogin, async (req, res) => {
+    const { source, amount, date } = req.body;
+    try {
+        // Insert the income with the user_id
+        await db.query('INSERT INTO incomes (user_id, source, amount, date) VALUES (?, ?, ?, ?)', 
+            [req.session.userId, source, amount, date]);
+        res.redirect('/incomes'); // Redirect to incomes view after adding
+    } catch (error) {
+        console.error(error);
+    }
+});
+
+// Delete Expense Route
+app.post('/delete-expense/:id', requireLogin, async (req, res) => {
+    const expenseId = req.params.id;
+
+    try {
+        await db.query('DELETE FROM expenses WHERE id = ?', [expenseId]);
+        res.redirect('/expenses'); // Redirect back to the expenses page after deletion
+    } catch (error) {
+        console.error(error);
+        res.redirect('/expenses'); // Handle error and redirect
+    }
+});
+
+//Delete Income Route
+app.post('/delete-income/:id', requireLogin, async (req, res) => {
+    const incomeId = req.params.id;
+
+    try {
+        await db.query('DELETE FROM incomes WHERE id = ?', [incomeId]);
+        res.redirect('/incomes'); // Redirect back to the incomes page after deletion
+    } catch (error) {
+        console.error(error);
+    }
+});
+
+// Start the server
 app.listen(3000, () => console.log('Server running on http://localhost:3000'));
