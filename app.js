@@ -196,5 +196,41 @@ app.post('/delete-income/:id', requireLogin, async (req, res) => {
     }
 });
 
+// View Category-wise Route (Protected)
+app.get('/view-category-wise', requireLogin, async (req, res) => {
+    try {
+        // Query to fetch category-wise expenses
+        const [expenses] = await db.query(
+            'SELECT category, SUM(amount) AS total_expense FROM expenses WHERE user_id = ? GROUP BY category',
+            [req.session.userId]
+        );
+
+        // Render the view for category-wise expenses
+        res.render('category-wise-expense', { expenses });
+    } catch (error) {
+        console.error(error);
+        res.redirect('/login');
+    }
+});
+
+// Assuming requireLogin is a middleware to check if the user is logged in
+app.get('/category-wise-income', requireLogin, async (req, res) => {
+    try {
+        // Query to fetch income grouped by source
+        const [incomeSources] = await db.query(
+            'SELECT source, SUM(amount) AS total_income FROM incomes WHERE user_id = ? GROUP BY source',
+            [req.session.userId]
+        );
+
+        // Render the view for income by source
+        res.render('category-wise-income', { incomeSources });
+    } catch (error) {
+        console.error(error);
+        res.redirect('/login');
+    }
+});
+
+
+
 // Start the server
 app.listen(3000, () => console.log('Server running on http://localhost:3000'));
