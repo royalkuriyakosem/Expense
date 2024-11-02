@@ -7,12 +7,25 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/styles.css">
+    <style>
+        /* Custom styles for navbar */
+        .navbar-nav .nav-link {
+            font-size: 1.25em; /* Increase font size */
+            padding: 15px 20px; /* Increase padding */
+        }
+
+        .navbar-brand .h1 {
+            font-size: 1.75em; /* Increase brand size */
+        }
+    </style>
 </head>
 <body class="bg-dark text-light">
     <!-- Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-secondary">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#"></a>
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <span class="h1 mb-0"><i class="bi bi-piggy-bank-fill me-2" style="font-size: 1.5em;"></i>EXPENSIO</span>
+            </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -34,19 +47,21 @@
             </div>
         </div>
     </nav>
-
-    <!-- Header Section -->
-    <header class="position-absolute top-0 start-0 p-4" style="margin-top: 70px;"> <!-- Add margin-top to push down -->
-        <h1 class="website-name m-0 d-inline-flex align-items-center" style="font-size: 3em;">
-            <i class="bi bi-piggy-bank-fill me-2" style="font-size: 1.5em;"></i>EXPENSIO
-        </h1>
-    </header>
-
     <div class="container mt-5">
-        <h1 class="welcome-heading text-center mb-4">Welcome to Personal Expense Tracker</h1>
+        <h1 class="welcome-heading text-center mb-4">Welcome to Expensio, <%= name %>!</h1>
         <div class="d-flex justify-content-center mb-4">
             <a href="/add-expense" class="btn btn-primary me-2">Add Expenses</a>
             <a href="/add-income" class="btn btn-secondary">Add Incomes</a>
+        </div>
+
+        <!-- Financial Overview -->
+        <div class="card text-bg-secondary mb-3">
+            <div class="card-body">
+                <h3 class="card-title">Financial Overview</h3>
+                <p class="fs-5">Total Income: <strong>Rs <%= totalIncome.toFixed(2) %></strong></p>
+                <p class="fs-5">Total Expenses: <strong>Rs <%= totalExpense.toFixed(2) %></strong></p>
+                <p class="fs-5">Savings: <strong>Rs <%= savings.toFixed(2) %></strong></p>
+            </div>
         </div>
     </div>
 
@@ -54,5 +69,3 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-
-

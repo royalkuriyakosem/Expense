@@ -22,9 +22,38 @@ function requireLogin(req, res, next) {
 }
 
 // Home Route (Protected)
-app.get('/', requireLogin, (req, res) => {
-    res.render('home'); // Render the home view with links to expenses and incomes
+// Home Route (Protected)
+app.get('/', requireLogin, async (req, res) => {
+    try {
+        // Get the user's first name
+        const [user] = await db.query('SELECT first_name FROM users WHERE id = ?', [req.session.userId]);
+        const name = user.length > 0 ? user[0].first_name : 'Guest'; // Default to 'Guest' if no user found
+        
+        // Query to get the total income
+        const [incomeResult] = await db.query(
+            'SELECT IFNULL(SUM(amount), 0) AS total_income FROM incomes WHERE user_id = ?',
+            [req.session.userId]
+        );
+        const totalIncome = parseFloat(incomeResult[0].total_income) || 0;
+
+        // Query to get the total expenses
+        const [expenseResult] = await db.query(
+            'SELECT IFNULL(SUM(amount), 0) AS total_expense FROM expenses WHERE user_id = ?',
+            [req.session.userId]
+        );
+        const totalExpense = parseFloat(expenseResult[0].total_expense) || 0;
+
+        // Calculate savings
+        const savings = totalIncome - totalExpense;
+
+        // Pass totals and user name to the home view
+        res.render('home', { totalIncome, totalExpense, savings, name }); // Use 'name' instead of 'Name'
+    } catch (error) {
+        console.error(error);
+        res.redirect('/login');
+    }
 });
+
 
 // Signup Route
 app.get('/signup', (req, res) => {

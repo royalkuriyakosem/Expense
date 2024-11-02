@@ -14,21 +14,13 @@
     <!-- Header Section -->
     <header class="position-absolute top-0 start-0 p-4">
         <h1 class="website-name m-0 d-inline-flex align-items-center" style="font-size: 3em;">
-            <i class="bi bi-piggy-bank-fill me-2" style="font-size: 1.5em;"></i>EXPENSIO
+            <i class="bi bi-piggy-bank-fill me-2" style="font-size: 1.5em;"></i>XPENSIO
         </h1>
     </header>
 
     <!-- Login Box -->
     <div class="login-box p-4 rounded">
         <h2 class="text-center mb-4">Login</h2>
-
-        <!-- Display error message if login fails -->
-        <% if (error) { %>
-            <div class="alert alert-danger text-center" role="alert">
-                <%= error %>
-            </div>
-        <% } %>
-
         <form action="/login" method="POST">
             <div class="mb-3">
                 <label for="username" class="form-label">Username</label>
