@@ -22,7 +22,6 @@ function requireLogin(req, res, next) {
 }
 
 // Home Route (Protected)
-// Home Route (Protected)
 app.get('/', requireLogin, async (req, res) => {
     try {
         // Get the user's first name
