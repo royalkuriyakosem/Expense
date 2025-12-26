@@ -1,14 +1,18 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const session = require('express-session');
+const morgan = require('morgan');
+const path = require('path');
+require('dotenv').config();
 const db = require('./config/db');
 const app = express();
 
-app.use(express.static('public'));
+app.use(morgan('dev'));
+app.use(express.static(path.join(__dirname, 'public')));
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(session({
-    secret: 'secret_key',
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true
 }));
@@ -27,7 +31,7 @@ app.get('/', requireLogin, async (req, res) => {
         // Get the user's first name
         const [user] = await db.query('SELECT first_name FROM users WHERE id = ?', [req.session.userId]);
         const name = user.length > 0 ? user[0].first_name : 'Guest'; // Default to 'Guest' if no user found
-        
+
         // Query to get the total income
         const [incomeResult] = await db.query(
             'SELECT IFNULL(SUM(amount), 0) AS total_income FROM incomes WHERE user_id = ?',
@@ -145,7 +149,7 @@ app.post('/add-expense', requireLogin, async (req, res) => {
     const { category, amount, date } = req.body;
     try {
         // Insert the expense with the user_id
-        await db.query('INSERT INTO expenses (user_id, category, amount, date) VALUES (?, ?, ?, ?)', 
+        await db.query('INSERT INTO expenses (user_id, category, amount, date) VALUES (?, ?, ?, ?)',
             [req.session.userId, category, amount, date]);
         res.redirect('/expenses'); // Redirect to expenses view after adding
     } catch (error) {
@@ -162,7 +166,7 @@ app.post('/add-income', requireLogin, async (req, res) => {
     const { source, amount, date } = req.body;
     try {
         // Insert the income with the user_id
-        await db.query('INSERT INTO incomes (user_id, source, amount, date) VALUES (?, ?, ?, ?)', 
+        await db.query('INSERT INTO incomes (user_id, source, amount, date) VALUES (?, ?, ?, ?)',
             [req.session.userId, source, amount, date]);
         res.redirect('/incomes'); // Redirect to incomes view after adding
     } catch (error) {
@@ -232,4 +236,5 @@ app.get('/category-wise-income', requireLogin, async (req, res) => {
 
 
 // Start the server
-app.listen(3000, () => console.log('Server running on http://localhost:3000'));
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));

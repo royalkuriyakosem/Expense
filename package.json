@@ -1,20 +1,33 @@
 {
   "name": "expense-tracker",
   "version": "1.0.0",
-  "main": "index.js",
+  "description": "A comprehensive Expense Management Application to track income and expenses.",
+  "main": "app.js",
   "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "expense",
+    "tracker",
+    "nodejs",
+    "express",
+    "mysql"
+  ],
+  "author": "Royal Kuriyakose",
   "license": "ISC",
-  "description": "",
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.3",
+    "dotenv": "^16.4.7",
     "ejs": "^3.1.10",
     "express": "^4.21.1",
     "express-session": "^1.18.1",
+    "morgan": "^1.10.0",
     "mysql2": "^3.11.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
   }
 }
