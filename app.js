@@ -29,19 +29,19 @@ function requireLogin(req, res, next) {
 app.get('/', requireLogin, async (req, res) => {
     try {
         // Get the user's first name
-        const [user] = await db.query('SELECT first_name FROM users WHERE id = ?', [req.session.userId]);
-        const name = user.length > 0 ? user[0].first_name : 'Guest'; // Default to 'Guest' if no user found
+        const { rows: users } = await db.query('SELECT first_name FROM users WHERE id = $1', [req.session.userId]);
+        const name = users.length > 0 ? users[0].first_name : 'Guest'; // Default to 'Guest' if no user found
 
         // Query to get the total income
-        const [incomeResult] = await db.query(
-            'SELECT IFNULL(SUM(amount), 0) AS total_income FROM incomes WHERE user_id = ?',
+        const { rows: incomeResult } = await db.query(
+            'SELECT COALESCE(SUM(amount), 0) AS total_income FROM incomes WHERE user_id = $1',
             [req.session.userId]
         );
         const totalIncome = parseFloat(incomeResult[0].total_income) || 0;
 
         // Query to get the total expenses
-        const [expenseResult] = await db.query(
-            'SELECT IFNULL(SUM(amount), 0) AS total_expense FROM expenses WHERE user_id = ?',
+        const { rows: expenseResult } = await db.query(
+            'SELECT COALESCE(SUM(amount), 0) AS total_expense FROM expenses WHERE user_id = $1',
             [req.session.userId]
         );
         const totalExpense = parseFloat(expenseResult[0].total_expense) || 0;
@@ -74,7 +74,7 @@ app.post('/signup', async (req, res) => {
 
     try {
         await db.query(
-            'INSERT INTO users (first_name, middle_name, last_name, email, username, dob, password) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            'INSERT INTO users (first_name, middle_name, last_name, email, username, dob, password) VALUES ($1, $2, $3, $4, $5, $6, $7)',
             [firstName, middleName || null, lastName, email, username, dob, password]
         );
         res.redirect('/login');
@@ -93,7 +93,7 @@ app.post('/login', async (req, res) => {
     const { username, password } = req.body;
 
     try {
-        const [users] = await db.query('SELECT * FROM users WHERE username = ?', [username]);
+        const { rows: users } = await db.query('SELECT * FROM users WHERE username = $1', [username]);
         if (users.length > 0) {
             const user = users[0];
             if (password === user.password) {
@@ -123,7 +123,7 @@ app.get('/logout', (req, res) => {
 // Incomes Route (Protected)
 app.get('/incomes', requireLogin, async (req, res) => {
     try {
-        const [incomes] = await db.query('SELECT * FROM incomes WHERE user_id = ?', [req.session.userId]);
+        const { rows: incomes } = await db.query('SELECT * FROM incomes WHERE user_id = $1', [req.session.userId]);
         res.render('incomes', { incomes }); // Render the incomes view
     } catch (error) {
         console.error(error);
@@ -133,7 +133,7 @@ app.get('/incomes', requireLogin, async (req, res) => {
 // Expenses Route (Protected)
 app.get('/expenses', requireLogin, async (req, res) => {
     try {
-        const [expenses] = await db.query('SELECT * FROM expenses WHERE user_id = ?', [req.session.userId]);
+        const { rows: expenses } = await db.query('SELECT * FROM expenses WHERE user_id = $1', [req.session.userId]);
         res.render('expenses', { expenses }); // Render the expenses view
     } catch (error) {
         console.error(error);
@@ -149,7 +149,7 @@ app.post('/add-expense', requireLogin, async (req, res) => {
     const { category, amount, date } = req.body;
     try {
         // Insert the expense with the user_id
-        await db.query('INSERT INTO expenses (user_id, category, amount, date) VALUES (?, ?, ?, ?)',
+        await db.query('INSERT INTO expenses (user_id, category, amount, date) VALUES ($1, $2, $3, $4)',
             [req.session.userId, category, amount, date]);
         res.redirect('/expenses'); // Redirect to expenses view after adding
     } catch (error) {
@@ -166,7 +166,7 @@ app.post('/add-income', requireLogin, async (req, res) => {
     const { source, amount, date } = req.body;
     try {
         // Insert the income with the user_id
-        await db.query('INSERT INTO incomes (user_id, source, amount, date) VALUES (?, ?, ?, ?)',
+        await db.query('INSERT INTO incomes (user_id, source, amount, date) VALUES ($1, $2, $3, $4)',
             [req.session.userId, source, amount, date]);
         res.redirect('/incomes'); // Redirect to incomes view after adding
     } catch (error) {
@@ -179,7 +179,7 @@ app.post('/delete-expense/:id', requireLogin, async (req, res) => {
     const expenseId = req.params.id;
 
     try {
-        await db.query('DELETE FROM expenses WHERE id = ?', [expenseId]);
+        await db.query('DELETE FROM expenses WHERE id = $1', [expenseId]);
         res.redirect('/expenses'); // Redirect back to the expenses page after deletion
     } catch (error) {
         console.error(error);
@@ -192,7 +192,7 @@ app.post('/delete-income/:id', requireLogin, async (req, res) => {
     const incomeId = req.params.id;
 
     try {
-        await db.query('DELETE FROM incomes WHERE id = ?', [incomeId]);
+        await db.query('DELETE FROM incomes WHERE id = $1', [incomeId]);
         res.redirect('/incomes'); // Redirect back to the incomes page after deletion
     } catch (error) {
         console.error(error);
@@ -203,8 +203,8 @@ app.post('/delete-income/:id', requireLogin, async (req, res) => {
 app.get('/view-category-wise', requireLogin, async (req, res) => {
     try {
         // Query to fetch category-wise expenses
-        const [expenses] = await db.query(
-            'SELECT category, SUM(amount) AS total_expense FROM expenses WHERE user_id = ? GROUP BY category',
+        const { rows: expenses } = await db.query(
+            'SELECT category, SUM(amount) AS total_expense FROM expenses WHERE user_id = $1 GROUP BY category',
             [req.session.userId]
         );
 
@@ -220,8 +220,8 @@ app.get('/view-category-wise', requireLogin, async (req, res) => {
 app.get('/category-wise-income', requireLogin, async (req, res) => {
     try {
         // Query to fetch income grouped by source
-        const [incomeSources] = await db.query(
-            'SELECT source, SUM(amount) AS total_income FROM incomes WHERE user_id = ? GROUP BY source',
+        const { rows: incomeSources } = await db.query(
+            'SELECT source, SUM(amount) AS total_income FROM incomes WHERE user_id = $1 GROUP BY source',
             [req.session.userId]
         );
 
