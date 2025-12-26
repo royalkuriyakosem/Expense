@@ -13,15 +13,15 @@ A web-based application to efficiently track and manage your daily income and ex
 ## Tech Stack
 
 -   **Backend**: Node.js, Express.js
--   **Database**: MySQL
+-   **Database**: PostgreSQL (Supabase)
 -   **Templating**: EJS
 -   **Styling**: CSS (Custom)
 -   **Utilities**: `dotenv` (Configuration), `morgan` (Logging), `bcryptjs` (Security)
 
 ## Prerequisites
 
--   [Node.js](https://nodejs.org/) (v14 or higher)
--   [MySQL](https://www.mysql.com/)
+-   [Node.js](https://nodejs.org/) (v18 or higher)
+-   [PostgreSQL](https://www.postgresql.org/) (or use Supabase)
 
 ## Installation
 
@@ -37,36 +37,31 @@ A web-based application to efficiently track and manage your daily income and ex
     ```
 
 3.  **Database Setup**:
-    -   Log in to your MySQL server:
+    -   Create a project on [Supabase](https://supabase.com/).
+    -   Get your connection string (Transaction Mode is recommended for serverless).
+    -   Run the setup script to create tables:
         ```bash
-        mysql -u root -p
+        node scripts/setup_db.js
         ```
-    -   Run the schema script to create the database and tables:
-        ```sql
-        SOURCE schema/schema.sql;
-        ```
-    -   (Optional) Insert sample data:
-        ```sql
-        SOURCE schema/insert.sql;
+    -   (Optional) Seed dummy data:
+        ```bash
+        node scripts/seed_data.js
         ```
 
 4.  **Configuration**:
-    -   Create a `.env` file in the root directory (copy from `.env.example`):
+    -   Create a `.env` file in the root directory:
         ```bash
         cp .env.example .env
         ```
-    -   Open `.env` and update your database credentials and session secret:
+    -   Update `.env` with your credentials:
         ```env
-        DB_HOST=localhost
-        DB_USER=root
-        DB_PASS=your_password
-        DB_NAME=expense_tracker
+        DATABASE_URL=postgresql://user:password@host:port/database
         SESSION_SECRET=your_secure_secret
         PORT=3000
         ```
 
 5.  **Run the Application**:
-    -   **Development Mode** (with auto-restart):
+    -   **Development Mode**:
         ```bash
         npm run dev
         ```
@@ -77,6 +72,16 @@ A web-based application to efficiently track and manage your daily income and ex
 
 6.  **Access the App**:
     -   Open your browser and navigate to `http://localhost:3000`.
+
+## Deployment (Render)
+
+1.  Create a new **Web Service** on [Render](https://render.com/).
+2.  Connect your GitHub repository.
+3.  Render will automatically detect the configuration from `render.yaml`.
+4.  **Important**: You must manually add your environment variables in the Render Dashboard:
+    -   `DATABASE_URL`: Your Supabase connection string.
+    -   `SESSION_SECRET`: A secure random string.
+5.  Click **Create Web Service**.
 
 ## Project Structure
 

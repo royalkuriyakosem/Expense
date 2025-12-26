@@ -2,6 +2,9 @@
   "name": "expense-tracker",
   "version": "1.0.0",
   "description": "A comprehensive Expense Management Application to track income and expenses.",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
